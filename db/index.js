@@ -59,13 +59,13 @@ async function createPost({
     content
 }) {
     try {
-        const { rows: [post] } = await client.query(`
-        INSERT INTO post(authorId, title, content)
+        const { rows: [posts] } = await client.query(`
+        INSERT INTO posts("authorId", title, content)
         VALUES ($1, $2, $3)
         RETURNING *;
          `, [authorId, title, content]);
 
-        return post;
+        return posts;
     } catch (error) {
         throw error;
     }
