@@ -4,6 +4,13 @@ const client = new Client(
     clientVariable
 )
 
+async function getAllTags() {
+    const { rows } = await client.query(
+        `SELECT * FROM tags;`
+    )
+    return rows;
+}
+
 async function getAllUsers() {
     const { rows } = await client.query(
         `SELECT id, username, name, location, active
@@ -295,4 +302,5 @@ module.exports = {
     getAllPosts,
     getUserById,
     getPostsByTagName,
+    getAllTags,
 }
