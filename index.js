@@ -8,7 +8,6 @@ require('dotenv').config();
 
 client.connect();
 
-console.log(process.env.JWT_SECRET);
 
 server.use(morgan('dev'));
 server.use(express.json());
