@@ -279,8 +279,9 @@ async function getUserById(userId) {
             return;
         } else {
             delete rows.password;
-            rows.posts = await getPostsByUser(userId);
-            return rows;
+            rows[0].posts = await getPostsByUser(userId);
+            console.log("Inside getUserById:", rows);
+            return rows[0];
         }
 
     } catch (error) {
@@ -299,9 +300,13 @@ async function getPostsByTagName(tagName) {
         WHERE tags.name=$1;
       `, [tagName]);
 
-        return await Promise.all(postIds.map(
+        const posts = await Promise.all(postIds.map(
             post => getPostById(post.id)
         ));
+
+        console.log("Inside getPostsByTagName: ", posts);
+
+        return posts;
     } catch (error) {
         throw error;
     }
@@ -319,4 +324,5 @@ module.exports = {
     getPostsByTagName,
     getAllTags,
     getUserByUsername,
+    getPostById,
 }
