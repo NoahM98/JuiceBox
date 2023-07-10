@@ -25,7 +25,7 @@ tagsRouter.get('/:tagName/posts', async (req, res, next) => {
         // send out an object to the client { posts: // the posts }
         if (allPosts) {
             const posts = allPosts.filter(post => {
-                return post.active;
+                return post.active && post.author.active;
             });
             res.send({
                 posts

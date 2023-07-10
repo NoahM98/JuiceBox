@@ -1,9 +1,10 @@
 const express = require('express');
 const usersRouter = express.Router();
-const { getAllUsers, getUserByUsername, createUser } = require('../db');
+const { getAllUsers, getUserByUsername, createUser, getUserById, updateUser } = require('../db');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
 require('dotenv').config();
+const { requireUser, requireActiveUser } = require('./utils.js');
 
 
 usersRouter.use((req, res, next) => {
@@ -89,6 +90,65 @@ usersRouter.post('/register', async (req, res, next) => {
     }
 });
 
+usersRouter.delete("/:userId", requireUser, requireActiveUser, async (req, res, next) => {
+    const userId = req.params.userId;
+    const deleteUser = await getUserById(userId);
 
+    try {
+        if (!deleteUser) {
+            throw {
+                name: "InvalidUserId",
+                message: "Must have a valid UserId"
+            }
+
+        } else if (req.user.id === deleteUser.id) {
+            const updatedUser = await updateUser(userId, { active: false });
+            if (!updatedUser) {
+                throw {
+                    name: "UnableToDelete",
+                    message: "Was not able to delete user"
+                }
+            }
+            res.send({ user: updatedUser })
+        } else {
+            throw {
+                name: "CannotDeleteOtherUsers",
+                message: "You cannot delete users other than yourself"
+            }
+        }
+    } catch ({ name, message }) {
+        next({ name, message });
+    }
+});
+
+usersRouter.patch("/:userId", requireUser, async (req, res, next) => {
+    const userId = req.params.userId;
+    const userToUpdate = await getUserById(userId);
+
+    try {
+        if (!userToUpdate) {
+            throw {
+                name: "InvalidUserId",
+                message: "It must have a valid userId"
+            }
+        } else if (req.user.id === userToUpdate.id) {
+            const updatedUser = await updateUser(userId, { active: true })
+            if (!updatedUser) {
+                throw {
+                    name: "UnableToUpdate",
+                    message: "Was not able to update user"
+                }
+            }
+            res.send({ user: updatedUser });
+        } else {
+            throw {
+                name: "CannotUpdateOtherUsers",
+                message: "You cannot update users other than yourself"
+            }
+        }
+    } catch ({ name, message }) {
+        next({ name, message });
+    }
+});
 
 module.exports = usersRouter;

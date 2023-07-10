@@ -8,6 +8,19 @@ async function requireUser(req, res, next) {
     next();
 }
 
+async function requireActiveUser(req, res, next) {
+    if (req.user.active) {
+
+        next()
+    } else {
+        next({
+            name: "InactiveUserError",
+            message: "We must have an active user account"
+        })
+    }
+}
+
 module.exports = {
-    requireUser
+    requireUser,
+    requireActiveUser,
 }
